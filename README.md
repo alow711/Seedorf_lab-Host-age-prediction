@@ -9,8 +9,7 @@ Qiime2_code_metadata:contains metadata and codes used with QIIME 2 v.2021.4
 
 Qiime2_data_files:contains the QIIME output
 
-Folder
-Sourcetracker contains 2 subfolders
+Folder: Sourcetracker contains 2 subfolders
   Longitudinal
   Longitudinal+Dietary
   Each subfolder contains
