@@ -5,7 +5,7 @@ Authors:Adrian Low, Melissa Soh, Sou Miyake and Henning Seedorf
 
 Here are brief descriptions of each folder:
 
-metadata.tsv- contains samples for longitudinal study (starts with a numeral e.g. 5.F10_11118_53) and samples for dietary study (starts with M e.g. M13-26-Jun).
+metadata.txt- contains samples for longitudinal study (starts with a numeral e.g. 5.F10_11118_53) and samples for dietary study (starts with M e.g. M13-26-Jun).
 Columns "#SampleID" (Sample identity), "PrimerSequence" (515F primer sequence), "Diet" (SD-standard diet, WD-western diet; used to differentiate dietary treatment), "Timeline_diet" (dietary study timeline in days), Age(weeks) (Age of mice in weeks), "Life_phase" (Life phase category for longitudinal study), "mouse" (mouse identity number), "Cage" (cage number), "Cage_category" (cage number spelt in words)
 
 N=433 for longitudinal study;
