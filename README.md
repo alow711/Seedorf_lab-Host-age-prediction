@@ -44,5 +44,6 @@ As of above including “Diet” (diet type SD standard diet or WD Western diet 
   
   - otus.txt - tab delimited file of ASV table (not rarefied)
   
-  - map.txt - mapping file
+  - map.txt - mapping file (Sample ID starting with "S" are source samples).
 Sample IDs with _ were replaced with -
+
