@@ -3,9 +3,7 @@
 
 Authors:Adrian Low, Melissa Soh, Sou Miyake and Henning Seedorf
 
-**Folder:
-
-**“Qiime2_code_metadata” folder:
+**“Qiime2_code_metadata” folder:**
 
 •	Qiime2-code.txt- codes for Qiime2 2 v.2021.4, indicating the input, output, and metadata used.
 •	manifest-all- lists the fastq files that were analyzed.
@@ -21,10 +19,10 @@ As of above including “Diet” (diet type SD standard diet or WD Western diet 
 •	biogeo-samples_Dec21.csv- a metadata used to Group the samples “GroupID”
 •	biogeo-merged_Dec21.csv-a metadata used for creating the custom PCoA emperor plot (Figure 5C).
 
-**“Qiime2_output folder”:** contains *.qza, *.qzv files and subfolders.
+**“Qiime2_output" folder:** contains *.qza, *.qzv files and subfolders.
 "single-end-trim-demux.qza" is not provided due to its large file size
 
-**Sourcetracker folder:** contains 2 subfolders
+**"Sourcetracker" folder:** contains 2 subfolders
 •	Longitudinal - Longitudinal study samples only 5 time points as "source". Figure 4 of manuscript
 
 •	Longitudinal+Dietary - same configuration as Longitudinal including 5 time points of control mice from Dietary study. Refer to Figure 5 of the manuscript.
