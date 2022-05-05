@@ -27,10 +27,17 @@ As of above including “Diet” (diet type SD standard diet or WD Western diet 
 
 •	biogeo-merged_Dec21.csv-a metadata used for creating the custom PCoA emperor plot (Figure 5C).
 
-**“Qiime2_output" folder:** contains *.qza, *.qzv files and subfolders.
+**Qiime2 outputs are split into four folders: **
+**“Qiime2_denoising" folder:** contains denoising, tables, rep-seqs of combined longitudinal and dietary study data. 
 "single-end-trim-demux.qza" is not provided due to its large file size
 
-**"Sourcetracker" folder:** contains 2 subfolders
+"Qiime2_Longitudinal_study" contains all *qza and *qzv files specific to longitudinal study.
+
+"Qiime2_Longitudinal_study2" contains output folders for core-metrics and feature-volatility (Random forest ASV prediction) for longitudinal study.
+
+"Qiime2_Dietary_study" contains output for dietary study.
+
+**"Sourcetracker" folder:** contains 2 subfolders for SourceTacker v.0.9.1 https://github.com/danknights/sourcetracker
 •	Longitudinal - Longitudinal study samples only 5 time points as "source". Figure 4 of manuscript
 
 •	Longitudinal+Dietary - same configuration as Longitudinal including 5 time points of control mice from Dietary study. Refer to Figure 5 of the manuscript.
