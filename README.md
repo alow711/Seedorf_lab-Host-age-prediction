@@ -1,37 +1,34 @@
 # host-age-prediction
-This repository contains scripts and data files used for "Host-age prediction from fecal microbiota composition in male C57BL/6J mice"
+**This repository contains Qiime2 codes and outputs used for "Host-age prediction from fecal microbiota composition in male C57BL/6J mice"**
 
 Authors:Adrian Low, Melissa Soh, Sou Miyake and Henning Seedorf
 
-Here are brief descriptions of each folder:
+**Folder:
 
-Qiime2_code_metadata:
+**“Qiime2_code_metadata” folder:
 
-metadata.txt- contains samples for longitudinal study (starts with a numeral e.g. 5.F10_11118_53) and samples for dietary study (starts with M e.g. M13-26-Jun).
-Columns "#SampleID" (Sample identity), "PrimerSequence" (515F primer sequence), "Diet" (SD-standard diet, WD-western diet; used to differentiate dietary treatment), "Timeline_diet" (dietary study timeline in days), "Age_wk" (Age of mice in weeks), "Life_phase" (Life phase category for longitudinal study), "mouse" (mouse identity number), "Cage" (cage number), "Cage_category" (cage number spelt in words)
-N=433 for longitudinal study;
-N=406 for dietary study.
-
-LTS-metadata.csv- contains samples for longitudinal study only.
+•	Qiime2-code.txt- codes for Qiime2 2 v.2021.4, indicating the input, output, and metadata used.
+•	manifest-all- lists the fastq files that were analyzed.
+Refer to https://docs.qiime2.org/ for description of headings
+•	metadata.txt- contains samples for longitudinal study (starts with a numeral e.g. 5.F10_11118_53) and samples for dietary study (starts with M e.g. M13-26-Jun). N=433 for longitudinal study; N=406 for dietary study.
+"#SampleID" (Sample identity), "PrimerSequence" (515F primer sequence), "Sampling-date" (date of fecal sampling in Month/Day/Year), "Timeline_diet" (dietary study timeline in days), "Age_wk" (Age of mice in weeks), "Life_phase" (Life phase category for longitudinal study), "mouse" (mouse identity number for longitudinal study), "Cage" (cage number for longitudinal study), "Cage_category" (cage number spelt in words)
+•	LTS-metadata.csv- contains samples for longitudinal study only.
+Additional headings “Age_weeks” (categorical age of mice in weeks), “Timeline_LTS” (experimental timeline in days), “stages” (life phase or life stage).
 "#SampleID" (Sample identity), "PrimerSequence" (515F primer sequence), "Age(days)" (Mice age in days), "Age_wk" (Age of mice in weeks), "Timeline_LTS" (longitudinal study timeline in days), "stages" (Life phase category for longitudinal study).
+•	LTS-metadata_cage.csv
+As of above including “Diet” (diet type SD standard diet or WD Western diet for dietary study), “stages2” (includes intermediate life stages), Year (Year 1 or Year 2 time points).
+•	biogeo_30percent_unknown.txt- A list to filter the dietary study samples to exclude samples with more than 30% unknown from sourcetracker analysis. This is used to filter the rep-seq and table so that a custom PCoA plot (Figure 5C) which matched the SourceTracker data in Figure 5B.
+•	biogeo-samples_Dec21.csv- a metadata used to Group the samples “GroupID”
+•	biogeo-merged_Dec21.csv-a metadata used for creating the custom PCoA emperor plot (Figure 5C).
 
-
-Qiime2-code.txt- codes for Qiime2
-
-Qiime2_output
-Qiime2 *.qza, *.qzv files.
+**“Qiime2_output folder”:** contains *.qza, *.qzv files and subfolders.
 "single-end-trim-demux.qza" is not provided due to its large file size
 
-Qiime2_code_metadata:contains metadata and codes used with QIIME 2 v.2021.4
+**Sourcetracker folder:** contains 2 subfolders
+•	Longitudinal - Longitudinal study samples only 5 time points as "source". Figure 4 of manuscript
 
-Qiime2_data_files:contains the QIIME output
-
-Folder: Sourcetracker contains 2 subfolders
-
-Longitudinal - Longitudinal study samples only 5 time points as "source". Figure 4 of manuscript
-
-Longitudinal+Dietary - same configuration as Longitudinal. Dietary study includes 5 time points as "source". Figure 5 of manuscript.
+•	Longitudinal+Dietary - same configuration as Longitudinal including 5 time points of control mice from Dietary study. Refer to Figure 5 of the manuscript.
   Each subfolder contains
     otus.txt - tab delimited file of ASV table (not rarefied)
     map.txt - mapping file
-*Replaced _ with - for R.
+Sample IDs with _ were replaced with -
