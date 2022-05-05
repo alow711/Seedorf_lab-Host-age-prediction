@@ -1,0 +1,21 @@
+#Sample ID,PrimerSequence,Treatment_type,Sampling-date,Timeline_diet,Age(days),Age(weeks),GroupID,Treatment,Diet
+2-Jun-control,GTGYCAGCMGCCGCGGTAA,Control,6/2/2017,-3,95,13.4,2-Jun-control,0.4,Standard_1_control
+6-Jun-control,GTGYCAGCMGCCGCGGTAA,Control,6/6/2017,0,97,14,6-Jun-control,1,Western_control
+13-Jun-control,GTGYCAGCMGCCGCGGTAA,Control,06/13/2017,7,105,15,13-Jun-control,2,Western_control
+19-Jun-control,GTGYCAGCMGCCGCGGTAA,Control,06/19/2017,13,111,16,19-Jun-control,3,Western_control
+26-Jun-control,GTGYCAGCMGCCGCGGTAA,Control,06/26/2017,20,118,17,26-Jun-control,4,Western_control
+3-July-control,GTGYCAGCMGCCGCGGTAA,Control,7/3/2017,27,125,17.9,3-July-control,4.9,Western_control
+10-July-control,GTGYCAGCMGCCGCGGTAA,Control,7/10/2017,34,132,19,10-July-control,6,Standard_2_control
+17-July-control,GTGYCAGCMGCCGCGGTAA,Control,07/17/2017,41,139,20,17-July-control,7,Standard_2_control
+24-July-control,GTGYCAGCMGCCGCGGTAA,Control,07/24/2017,48,146,21,24-July-control,8,Standard_2_control
+31-July-control,GTGYCAGCMGCCGCGGTAA,Control,07/31/2017,55,153,21.9,31-July-control,8.9,Standard_2_control
+2-Jun-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,6/2/2017,-3,95,13.4,2-Jun-treatment,0.4,Standard_1_treatment
+6-Jun-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,6/6/2017,0,98,14,6-Jun-treatment,1,Western_treatment
+13-Jun-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,06/13/2017,7,105,15,13-Jun-treatment,2,Western_treatment
+19-Jun-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,06/19/2017,13,111,16,19-Jun-treatment,3,Western_treatment
+26-Jun-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,06/26/2017,20,118,17,26-Jun-treatment,4,Western_treatment
+3-July-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,7/3/2017,27,125,17.9,3-July-treatment,4.9,Western_treatment
+10-July-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,7/10/2017,34,132,19,10-July-treatment,6,Standard_2_treatment
+17-July-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,07/17/2017,41,139,20,17-July-treatment,7,Standard_2_treatment
+24-July-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,07/24/2017,48,146,21,24-July-treatment,8,Standard_2_treatment
+31-July-treatment,GTGYCAGCMGCCGCGGTAA,Treatment,07/31/2017,55,153,21.9,31-July-treatment,8.9,Standard_2_treatment

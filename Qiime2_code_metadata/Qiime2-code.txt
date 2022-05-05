@@ -1,0 +1,423 @@
+#Qiime2 codes used in Low et al 2022 "Host-age prediction from fecal microbiota composition in male C57BL/6J mice"
+#Qiime 2021.4
+
+#fastq files were deposited in NCBI with BioProject number PRJNA503299 for longitudinal study and BioProject number PRJNA503296 (Table S5 of manuscript) for dietary treatment study (Table S6 for manuscript).
+
+#importing forward reads (fastq) to Qiime2. The manifest contains longitudinal study and dietary treatment study data
+qiime tools import \
+  --type 'SampleData[SequencesWithQuality]' \
+  --input-path manifest-all \
+  --output-path single-end-demux.qza \
+  --input-format SingleEndFastqManifestPhred33
+
+#remove forward primer  
+qiime cutadapt trim-single \
+  --i-demultiplexed-sequences single-end-demux.qza \
+  --p-cores 4 \
+  --p-front GTGYCAGCMGCCGCGGTAA \
+  --o-trimmed-sequences single-end-trim-demux.qza
+
+#denoise single reads using DADA2
+qiime dada2 denoise-single \
+  --i-demultiplexed-seqs single-end-trim-demux.qza \
+  --p-trim-left 0 \
+  --p-trunc-len 176 \
+  --p-n-threads 8 \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+
+#summarize denoising statistics
+qiime metadata tabulate \
+  --m-input-file denoising-stats.qza \
+  --o-visualization denoising-stats.qzv
+  
+#summarize rep-seq 
+qiime feature-table tabulate-seqs \
+   --i-data rep-seqs.qza \
+   --o-visualization rep-seqs.qzv
+   
+#summarize table
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file metadata.txt
+
+#remove ASVs in fewer than 5 samples
+qiime feature-table filter-features \
+  --i-table table.qza \
+  --p-min-samples 5 \
+  --o-filtered-table table_features-sample.qza
+
+#summarize filtered ASV table  
+qiime feature-table summarize \
+  --i-table table_features-sample.qza \
+  --o-visualization table_features-sample.qzv \
+  --m-sample-metadata-file metadata.txt
+
+#export the ASV table for Sourcetracker  
+qiime tools export \
+  --input-path table_features-sample.qza \
+  --output-path table_features-sample
+#convert biom table to tsv file (otus.tsv)
+
+biom convert -i feature-table.biom -o otus.tsv --to-tsv
+
+#rename otus.tsv to otus.txt 1 sample M20-14-Aug (27 total reads) was manually removed from otus.txt due to low number of reads
+#The exported otus.txt was used as input for SourceTracker
+
+#Alpha- and Beta-diversity analysis for longterm stability (LTS) data
+#Filter the Longterm stability dataset(LTS)
+qiime feature-table filter-samples \
+  --i-table table_features-sample.qza \
+  --m-metadata-file LTS-metadata.csv \
+  --o-filtered-table LTS-filtered-table.qza
+
+#Summarize the LTS dataset
+qiime feature-table summarize \
+  --i-table LTS-filtered-table.qza \
+  --o-visualization LTS-filtered-table.qzv \
+  --m-sample-metadata-file LTS-metadata.csv
+
+#Filter the ASV sequence to retain LTS dataset
+qiime feature-table filter-seqs \
+  --i-data rep-seqs_filtered.qza \
+  --i-table LTS-filtered-table.qza \
+  --o-filtered-data LTS-rep-seqs_filtered.qza
+  
+#Summarize the rep-seq filtered LTS dataset
+qiime feature-table tabulate-seqs \
+   --i-data LTS-rep-seqs_filtered.qza \
+   --o-visualization LTS-rep-seqs_filtered.qzv
+
+#Align the sequences of LTS dataset
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences LTS-rep-seqs_filtered.qza \
+  --p-n-threads 8 \
+  --o-alignment LTS-rep-seqs_filtered_aligned.qza \
+  --o-masked-alignment LTS-rep-seqs_filtered_masked_aligned.qza \
+  --o-tree LTS-rep-seqs_filtered_unrooted-tree.qza \
+  --o-rooted-tree LTS-rep-seqs_filtered_rooted-tree.qza
+
+#Generate alpha- and beta-diversity metrices based on rarefaction (2733 sequences per sample)
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny LTS-rep-seqs_filtered_rooted-tree.qza \
+  --i-table LTS-filtered-table.qza \
+  --p-sampling-depth 2733 \
+  --m-metadata-file LTS-metadata.csv \
+  --output-dir LTS-2733-core-metrics
+  
+#Perform PERMANOVA tests for beta-diversity in LTS-2733-core-metrics folder
+#Bray-Curtis dissimilarity; between life stages
+qiime diversity beta-group-significance \
+  --i-distance-matrix bray_curtis_distance_matrix.qza \
+  --m-metadata-file LTS-metadata.csv  \
+  --m-metadata-column stages \
+  --p-method permanova \
+  --p-pairwise \
+  --p-permutations 9999 \
+  --o-visualization Permanova-9999-BC-stages \
+  --verbose
+
+#Bray-Curtis dissimilarity; between time points
+qiime diversity beta-group-significance \
+  --i-distance-matrix bray_curtis_distance_matrix.qza \
+  --m-metadata-file LTS-metadata.csv \
+  --m-metadata-column Age_week \
+  --p-method permanova \
+  --p-pairwise \
+  --p-permutations 9999 \
+  --o-visualization Permanova-BC-Time \
+  --verbose
+
+#Weighted-UniFrac; between life stages
+qiime diversity beta-group-significance \
+  --i-distance-matrix weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file LTS-metadata.csv \
+  --m-metadata-column Age_week \
+  --p-method permanova \
+  --p-pairwise \
+  --p-permutations 9999 \
+  --o-visualization Permanova-W_UniFrac-Time \
+  --verbose
+
+#Weighted-UniFrac; between time points
+qiime diversity beta-group-significance \
+  --i-distance-matrix weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file LTS-metadata.csv \
+  --m-metadata-column stages \
+  --p-method permanova \
+  --p-pairwise \
+  --p-permutations 9999 \
+  --o-visualization Permanova-9999-W_UniFrac-stages \
+  --verbose
+  
+#Taxonomic assignment to SILVA 138 SSU database
+qiime feature-classifier classify-sklearn \
+  --i-classifier silva-138-99-tax-515-806_q2020_2.qza  \
+  --p-n-jobs -1 \
+  --i-reads LTS-rep-seqs_filtered.qza \
+  --o-classification silva-138-LTS.qza
+
+#Summarize taxonomy
+qiime metadata tabulate \
+  --m-input-file silva-138-LTS.qza \
+  --o-visualization silva-138-LTS.qzv
+
+#Identifying ASVs that are good predictors of age based on Random Forest
+qiime longitudinal feature-volatility \
+  --i-table LTS-filtered-table.qza \
+  --m-metadata-file LTS-metadata.csv \
+  --p-state-column Age_wk \
+  --p-individual-id-column Age_week\
+  --p-n-estimators 100 \
+  --p-random-state 855 \
+  --output-dir LTS-feat-volatility
+  
+#Export the ASV importance table 
+qiime tools export \
+  --input-path feature_importance.qza \
+  --output-path feature_importance
+  
+#For phylum level analysis of the rarefied ASV table (from alpha- and beta-diversity analysis above)
+qiime taxa collapse \
+  --i-table rarefied_table.qza \
+  --i-taxonomy 	silva-138-LTS.qza \
+  --p-level 2 \
+  --o-collapsed-table LTS-rarefiedtable-phylum.qza
+
+#Export phylum level table. Not uploaded to GitHub.
+qiime tools export \
+  --input-path LTS-rarefiedtable-phylum.qza \
+  --output-path LTS-rarefiedtable-phylum
+
+#convert phylum level biom table to tsv file. Not uploaded to GitHub.
+biom convert -i feature-table.biom -o LTS-rarefied2733-phylum.tsv --to-tsv
+
+#For family level analysis of the rarefied ASV table (from alpha- and beta-diversity analysis above)
+qiime taxa collapse \
+  --i-table rarefied_table.qza \
+  --i-taxonomy 	silva-138-LTS.qza \
+  --p-level 5 \
+  --o-collapsed-table LTS-rarefied-family.qza
+  
+#Export family level table. Not uploaded to GitHub.
+qiime tools export \
+  --input-path LTS-rarefied-family.qza \
+  --output-path LTS-rarefied-family
+
+#convert family level biom table to tsv file. Not uploaded to GitHub.
+biom convert -i feature-table.biom -o LTS-rarefied2733-family.tsv --to-tsv
+
+#Dietary treatment study
+#Filter the table to obtain the samples for the dietary treatment study
+qiime feature-table filter-samples \
+  --i-table biogeo-filtered-table_age_prediction.qza \
+  --m-metadata-file biogeo_30percent_unknown.txt \
+  --o-filtered-table biogeo-filtered-table_Dec21.qza
+
+#Summarize table
+qiime feature-table summarize \
+  --i-table biogeo-filtered-table_Dec21.qza \
+  --o-visualization biogeo-filtered-table_Dec21.qzv \
+  --m-sample-metadata-file biogeo-samples_Dec21.csv
+  
+#Filter sequence to obtain sequences for the dietary treatment study
+qiime feature-table filter-seqs \
+  --i-data biogeo-rep-seqs_filtered.qza \
+  --i-table biogeo-filtered-table_age_prediction.qza \
+  --o-filtered-data biogeo-rep-seqs_age_prediction_filtered.qza
+
+#Average the samples by age 
+qiime feature-table group \
+  --i-table biogeo-filtered-table_Dec21.qza \
+  --p-axis sample \
+  --m-metadata-file biogeo-samples_Dec21.csv \
+  --m-metadata-column "GroupID" \
+  --p-mode mean-ceiling \
+  --o-grouped-table grouped-biogeo-filtered-table_Dec21.qza
+
+#summarize table
+qiime feature-table summarize \
+  --i-table grouped-biogeo-filtered-table_Dec21.qza \
+  --o-visualization grouped-biogeo-filtered-table_Dec21.qzv \
+  --m-sample-metadata-file biogeo-merged_Dec21.csv
+
+#dietary treatment study-sequence alignment 
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences biogeo-rep-seqs_age_prediction_filtered.qza \
+  --p-n-threads 8 \
+  --o-alignment biogeo-rep-seqs-aligned_Dec21.qza \
+  --o-masked-alignment biogeo-rep-seqs-masked-aligned_Dec21.qza\
+  --o-tree biogeo-rep-seqs-masked-aligned_tree-Dec21.qza \
+  --o-rooted-tree biogeo-rep-seqs-masked-aligned_rooted-tree-Dec21.qza
+
+
+#alpha- and beta-diversity metrices
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny biogeo-rep-seqs-masked-aligned_rooted-tree-Dec21.qza \
+  --i-table grouped-biogeo-filtered-table_Dec21.qza \
+  --p-sampling-depth 9932 \
+  --m-metadata-file biogeo-merged_Dec21.csv \
+  --output-dir biogeo-9932-core-metrics
+  
+#create custom PCoA plot of Bray-Curtis
+qiime emperor plot \
+  --i-pcoa bray_curtis_pcoa_results.qza \
+  --m-metadata-file biogeo-merged_Dec21.csv \
+  --p-custom-axes Treatment \
+  --o-visualization custom_pcoa_bray_curtis.qzv
+
+#create custom PCoA plot of weighted-UniFrac
+qiime emperor plot \
+  --i-pcoa weighted_unifrac_pcoa_results.qza \
+  --m-metadata-file biogeo-merged_Dec21.csv \
+  --p-custom-axes Treatment \
+  --o-visualization custom_pcoa_weight-Unifrac.qzv
+
+#PERMANOVA analysis Bray-Curtis Dietary treatment study  
+qiime diversity beta-group-significance \
+  --i-distance-matrix bray_curtis_distance_matrix.qza \
+  --m-metadata-file biogeo-merged_Dec21.csv
+  --m-metadata-column GroupID \
+  --p-method permanova \
+  --p-pairwise \
+  --p-permutations 9999 \
+  --o-visualization Permanova-9999-BC-GroupID 
+
+#PERMANOVA analysis weighted-UniFrac Dietary treatment study  
+qiime diversity beta-group-significance \
+  --i-distance-matrix weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file biogeo-samples_Dec21.csv \
+  --m-metadata-column GroupID \
+  --p-method permanova \
+  --p-pairwise \
+  --p-permutations 9999 \
+  --o-visualization Permanova-9999-UniFrac-GroupID 
+  
+  
+Linear mixed effects analysis subfolder "LTS-2733-core-metrics"
+
+#Calculate Shannon index. Rarefied table refers to the Longitudinal study (2733 reads per sample).
+qiime diversity alpha \
+  --i-table rarefied_table.qza \
+  --p-metric shannon \
+  --o-alpha-diversity shannon_vector.qza
+  
+#Calculate Simpson's index. Rarefied table refers to the Longitudinal study (2733 reads per sample).
+qiime diversity alpha \
+  --i-table rarefied_table.qza \
+  --p-metric simpson \
+  --o-alpha-diversity simpson_vector.qza
+ 
+#Calculate Chao1 index. Rarefied table refers to the Longitudinal study (2733 reads per sample).
+qiime diversity alpha \
+  --i-table rarefied_table.qza \
+  --p-metric chao1 \
+  --o-alpha-diversity chao1_vector.qza
+
+#Calculate Pielou evenness index. Rarefied table refers to the Longitudinal study (2733 reads per sample).
+qiime diversity alpha \
+  --i-table rarefied_table.qza \
+  --p-metric pielou_e \
+  --o-alpha-diversity pielou_e_vector.qza
+
+#Linear mixed effects on Simpon's index between year 1 and year 2 time points. 
+qiime longitudinal linear-mixed-effects \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file simpson_vector.qza \
+  --p-metric simpson \
+  --p-group-columns Year\
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-random-effects mouse,Age_wk \
+  --o-visualization LME_simpson_year.qzv
+
+#Linear mixed effects on Shannon index between year 1 and year 2 time points. 
+qiime longitudinal linear-mixed-effects \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file shannon_vector.qza \
+  --p-metric shannon_entropy \
+  --p-group-columns Year\
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-random-effects mouse,Age_wk \
+  --o-visualization LME_shannon_year.qzv
+
+#Linear mixed effects on Pielou's evenness index between year 1 and year 2 time points.
+qiime longitudinal linear-mixed-effects \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file pielou_e_vector.qza \
+  --p-metric pielou_evenness \
+  --p-group-columns Year \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-random-effects mouse,Age_wk \
+  --o-visualization LME_peilou_year.qzv
+
+#Linear mixed effects on Chao1 index between year 1 and year 2 time points. 
+qiime longitudinal linear-mixed-effects \
+	  --m-metadata-file LTS-metadata_cage.csv \
+	  --m-metadata-file chao1_vector.qza \
+	  --p-metric chao1 \
+	  --p-group-columns Year\
+	  --p-state-column Age_wk \
+	  --p-individual-id-column mouse \
+	  --p-random-effects mouse,Age_wk \
+	  --o-visualization LME_chao1_year.qzv
+
+#Find the weighted-UniFrac first distances between successive time points
+qiime longitudinal first-distances \
+  --i-distance-matrix weighted_unifrac_distance_matrix.qza \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --o-first-distances W_UniFrac_1st_dist.qza
+  
+#Calulate the linear mixed effects of the weighted-UniFrac first distances.
+qiime longitudinal linear-mixed-effects \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file W_UniFrac_1st_dist.qza \
+  --p-metric Distance \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-group-columns stages2 \
+  --p-random-effects mouse,Age_wk \
+  --o-visualization LME_W_UniFrac_1st_dist.qzv
+
+#Generate volatility plot of the weighted-UniFrac First distances.
+qiime longitudinal volatility \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file W_UniFrac_1st_dist.qza \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-default-group-column stages2 \
+  --o-visualization W_UniFrac_1st_dist_volatility.qzv
+
+#Find the Bray-Curtis first distances between successive time points
+qiime longitudinal first-distances \
+  --i-distance-matrix bray_curtis_distance_matrix.qza \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --o-first-distances bray_curtis_1st_dist.qza
+
+#Calulate the linear mixed effects of the Bray Curtis first distances.
+qiime longitudinal linear-mixed-effects \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file bray_curtis_1st_dist.qza \
+  --p-metric Distance \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-group-columns stages2 \
+  --p-random-effects mouse,Age_wk \
+  --o-visualization LME_bray_curtis_1st_dist.qzv
+
+#Generate volatility plot of the Bray-Curtis First distances.
+qiime longitudinal volatility \
+  --m-metadata-file LTS-metadata_cage.csv \
+  --m-metadata-file bray_curtis_1st_dist.qza \
+  --p-state-column Age_wk \
+  --p-individual-id-column mouse \
+  --p-default-group-column stages2 \
+  --o-visualization bray_curtis_1st_dist.qzv
